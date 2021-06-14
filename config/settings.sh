@@ -1,10 +1,11 @@
-#!/bin/sh
+#!/bin/bash
+
 # hostname of the gateway - it must accept vxlan and DHCP traffic
 # clients get it as env variable
-GATEWAY_NAME="${gateway}"
+GATEWAY_NAME="$gateway"
 # K8S DNS IP address
 # clients get it as env variable
-K8S_DNS_IPS="${K8S_DNS_ips}"
+K8S_DNS_IPS="$K8S_DNS_ips"
 # Blank  sepated IPs not sent to the POD gateway but to the default K8S
 # This is needed, for example, in case your CNI does
 # not add a non-default rule for the K8S addresses (Flannel does)

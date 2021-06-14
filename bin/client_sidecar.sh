@@ -1,4 +1,5 @@
-#!/bin/sh -e
+#!/bin/bash
+set -e
 
 # Load main settings
 cat /default_config/settings.sh
@@ -15,7 +16,7 @@ while true; do
   echo "Monitor connection to $VXLAN_GATEWAY_IP"
 
   # Ping the gateway vxlan IP -> this only works when vxlan is up
-  while ping -c 1 $VXLAN_GATEWAY_IP > /dev/null; do
+  while ping -c 1 "$VXLAN_GATEWAY_IP" > /dev/null; do
     # Sleep while reacting to signals
     sleep 10 &
     wait $!
