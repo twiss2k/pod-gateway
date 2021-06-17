@@ -12,7 +12,7 @@ cat /config/settings.sh
 K8S_DNS=$(grep nameserver /etc/resolv.conf | cut -d' ' -f2)
 
 
-cat << EOF > /etc/dnsmasq.conf
+cat << EOF >> /etc/dnsmasq.conf
 # DHCP server settings
 interface=vxlan0
 bind-interfaces
@@ -33,7 +33,7 @@ log-facility=-
 EOF
 
 for local_cidr in $DNS_LOCAL_CIDRS; do
-  cat << EOF > /etc/dnsmasq.conf
+  cat << EOF >> /etc/dnsmasq.conf
   # Send ${local_cidr} DNS queries to the K8S DNS server
   server=/${local_cidr}/${K8S_DNS}
 EOF
