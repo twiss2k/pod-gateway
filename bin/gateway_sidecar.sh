@@ -12,7 +12,7 @@ cat /config/settings.sh
 K8S_DNS=$(grep nameserver /etc/resolv.conf | cut -d' ' -f2)
 
 
-cat << EOF >> /etc/dnsmasq.conf
+cat << EOF > /etc/dnsmasq.d/pod-gateway.conf
 # DHCP server settings
 interface=vxlan0
 bind-interfaces
@@ -30,22 +30,50 @@ log-dhcp
 # Log to stdout
 log-facility=-
 
+# Clear DNS cache on reload
+clear-on-reload
+
+# /etc/resolv.conf cannot be monitored by dnsmasq since it is in a different file system
+# and dnsmasq monitors directories only
+# copy_resolv.sh is used to copy the file on changes
+resolv-file=${RESOLV_CONF_COPY}
 EOF
 
 for local_cidr in $DNS_LOCAL_CIDRS; do
-  cat << EOF >> /etc/dnsmasq.conf
+  cat << EOF >> /etc/dnsmasq.d/pod-gateway.conf
   # Send ${local_cidr} DNS queries to the K8S DNS server
   server=/${local_cidr}/${K8S_DNS}
 EOF
 done
 
-# Need to wait until new DNS server in /etc/resolv.conf is setup
-# by the VPN.
-#
-# dnsmasq should be able to detect changes in /etc/resolv.conf
-# and reload the settings but this does not work
-#
-# TBD: find a better way...
-sleep 10
+# Make a copy of /etc/resolv.conf
+/bin/copy_resolv.sh
 
-exec dnsmasq -k
+# Dnsmasq daemon
+dnsmasq -k &
+dnsmasq=$!
+
+# inotifyd to keep in sync resolv.conf copy
+# Monitor file content (c) and metadata (e) changes
+inotifyd /bin/copy_resolv.sh /etc/resolv.conf:ce
+inotifyd=$!
+
+_kill_procs() {
+  echo "Signal received -> killing processes"
+  kill -TERM $dnsmasq
+  wait $dnsmasq
+  kill -TERM $inotifyd
+  wait $inotifyd
+}
+
+# Setup a trap to catch SIGTERM and relay it to child processes
+trap _kill_procs SIGTERM
+
+#Wait for dnsmasq
+wait $dnsmasq
+
+echo "TERMINATING"
+
+# kill inotifyd
+kill -TERM $inotifyd
+wait $inotifyd

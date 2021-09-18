@@ -7,7 +7,8 @@ WORKDIR /
 # dnsmasq -> DNS & DHCP server
 # coreutils -> need REAL chown and chmod for dhclient (it uses reference option not supported in busybox)
 # bash -> for scripting logic
-RUN apk add --no-cache coreutils dnsmasq iproute2 bind-tools dhclient bash
+# inotify-tools -> inotifyd for dnsmask resolv.conf reload circumvention
+RUN apk add --no-cache coreutils dnsmasq iproute2 bind-tools dhclient bash inotify-tools
 
 COPY config /default_config
 COPY config /config
