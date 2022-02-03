@@ -34,7 +34,7 @@ log-facility=-
 clear-on-reload
 
 # Enable DNSSEC validation and caching
-conf-file=%%PREFIX%%/share/dnsmasq/trust-anchors.conf
+conf-file=/usr/share/dnsmasq/trust-anchors.conf
 dnssec
 
 # /etc/resolv.conf cannot be monitored by dnsmasq since it is in a different file system
