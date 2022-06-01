@@ -65,10 +65,10 @@ interface "vxlan0"
  {
   request subnet-mask,
           broadcast-address,
-          routers,
+          routers;
           #domain-name-servers;
   require routers,
-          subnet-mask,
+          subnet-mask;
           #domain-name-servers;
  }
 EOF
