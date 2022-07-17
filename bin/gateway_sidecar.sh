@@ -64,10 +64,17 @@ inotifyd=$!
 
 _kill_procs() {
   echo "Signal received -> killing processes"
+  
   kill -TERM $dnsmasq
   wait $dnsmasq
+  rc=$?
+  
   kill -TERM $inotifyd
   wait $inotifyd
+
+  rc=$(( $rc || $? ))
+  echo "Terminated with RC: $rc"
+  exit $rc
 }
 
 # Setup a trap to catch SIGTERM and relay it to child processes
@@ -75,9 +82,14 @@ trap _kill_procs SIGTERM
 
 #Wait for dnsmasq
 wait $dnsmasq
+rc=$?
 
 echo "TERMINATING"
 
 # kill inotifyd
 kill -TERM $inotifyd
 wait $inotifyd
+
+rc=$(( $rc || $? ))
+echo "Terminated with RC: $rc"
+exit $rc
