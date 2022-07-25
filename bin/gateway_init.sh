@@ -20,6 +20,9 @@ ip link add vxlan0 type vxlan id $VXLAN_ID dev eth0 dstport 0 || true
 ip addr add ${VXLAN_GATEWAY_IP}/24 dev vxlan0 || true
 ip link set up dev vxlan0
 
+# Set proper firewall rule preference
+ip rule add from all lookup main suppress_prefixlength 0 preference 50;
+
 # Enable outbound NAT
 iptables -t nat -A POSTROUTING -j MASQUERADE
 
