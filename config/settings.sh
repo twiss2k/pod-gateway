@@ -35,3 +35,7 @@ DNS_LOCAL_CIDRS="local"
 # file system so it does not work. To circumvent this a copy is made using
 # inotifyd
 RESOLV_CONF_COPY=/etc/resolv_copy.conf
+
+# ICMP heartbeats are used to ensure the pod-gateway is connectable from the clients.
+# The following value can be used to to provide more stability in an unreliable network connection.
+CONNECTION_RETRY_COUNT=1
