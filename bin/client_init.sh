@@ -40,6 +40,9 @@ GATEWAY_IP="$(dig +short "$GATEWAY_NAME" "@${K8S_DNS_IP}")"
 NAT_ENTRY="$(grep "$(hostname)" /config/nat.conf || true)"
 VXLAN_GATEWAY_IP="${VXLAN_IP_NETWORK}.1"
 
+# Make sure there is correct route for gateway
+ip route add "$GATEWAY_IP" via "$K8S_GW_IP"
+
 # For debugging reasons print some info
 ip addr
 ip route

@@ -8,6 +8,17 @@ cat /default_config/settings.sh
 cat /config/settings.sh
 . /config/settings.sh
 
+if [ "${IPTABLES_NFT:-no}" = "yes" ];then
+    # We cannot just call iptables-translate as it'll just print new syntax without applying
+    rm /sbin/iptables
+    ln -s /sbin/iptables-translate /sbin/iptables
+fi
+
+# It might already exists in case initContainer is restarted
+if ip addr | grep -q vxlan0; then
+  ip link del vxlan0
+fi
+
 # Enable IP forwarding
 if [[ $(cat /proc/sys/net/ipv4/ip_forward) -ne 1 ]]; then
     echo "ip_forward is not enabled; enabling."
@@ -20,8 +31,11 @@ ip link add vxlan0 type vxlan id $VXLAN_ID dev eth0 dstport 0 || true
 ip addr add ${VXLAN_GATEWAY_IP}/24 dev vxlan0 || true
 ip link set up dev vxlan0
 
-# Set proper firewall rule preference
-ip rule add from all lookup main suppress_prefixlength 0 preference 50;
+# check if rule already exists (retry)
+if ! ip rule | grep -q "from all lookup main suppress_prefixlength 0"; then
+  # Set proper firewall rule preference
+  ip rule add from all lookup main suppress_prefixlength 0 preference 50;
+fi
 
 # Enable outbound NAT
 iptables -t nat -A POSTROUTING -j MASQUERADE
