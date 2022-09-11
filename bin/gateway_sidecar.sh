@@ -8,8 +8,14 @@ cat /default_config/settings.sh
 cat /config/settings.sh
 . /config/settings.sh
 
+# Make a copy of the original resolv.conf (so we can get the K8S DNS in case of a container reboot)
+if [ ! -f /etc/resolv.conf.org ]; then
+  cp /etc/resolv.conf /etc/resolv.conf.org
+  echo "/etc/resolv.conf.org written"
+fi
+
 #Get K8S DNS
-K8S_DNS=$(grep nameserver /etc/resolv.conf | cut -d' ' -f2)
+K8S_DNS=$(grep nameserver /etc/resolv.conf.org | cut -d' ' -f2)
 
 
 cat << EOF > /etc/dnsmasq.d/pod-gateway.conf
