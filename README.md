@@ -1,9 +1,11 @@
 # pod-gateway
 
-This container includes scripts used to route traafic from pods through another gateway pod. Typically
+This container includes scripts used to route trafic from pods through another gateway pod. Typically
 the gateway pod then runs a openvpn client to forward the traffic.
 
-This container is typically used by the [pod-gateway]()
+This container is injected by the [gateway-admision-controller](../../../gateway-admision-controller)
+so that existing K8S PODs can be extended to route their trafic through a VPN. Check the
+[README](../../../gateway-admision-controller/blob/main/README.md) to learn how to use it.
 
 The connection between the pods is done via a vxlan. The gatway provides a DHCP server to let client
 pods to get automatically an IP.
@@ -33,7 +35,7 @@ This container provides the required init/sidecar containers for clients and gat
 
 Settings are expected in the `/config` folder - see examples under [config](config):
 - [config/settings.sh](config/settings.sh): variables used by all helper scripts
-- [config/nat.sh](config/nat.sh): static IP and nat rules for PODs exposing ports through the gateway (and optional VPN) POD
+- [config/nat.conf](config/nat.conf): static IP and nat rules for PODs exposing ports through the gateway (and optional VPN) POD
 Default settings might be overwritten by attachin a container volume with the new values to the helper pods.
 
 ## Prereqs
@@ -50,8 +52,7 @@ You need to create the following secrets (not needed within the k8s-at-home org 
    make
    ```
 
-Testing requires multiple containers - see
-[Helm chart](https://github.com/k8s-at-home/charts/tree/master/charts/stable/pod-gateway-setter)
+Testing requires multiple containers - see the [gateway-admision-controller](../../../gateway-admision-controller)
 and check the [Makefile](Makefile) for other build targets.
 
 
