@@ -65,17 +65,17 @@ dnsmasq=$!
 
 # inotifyd to keep in sync resolv.conf copy
 # Monitor file content (c) and metadata (e) changes
-inotifyd /bin/copy_resolv.sh /etc/resolv.conf:ce
+inotifyd /bin/copy_resolv.sh /etc/resolv.conf:ce &
 inotifyd=$!
 
 _kill_procs() {
   echo "Signal received -> killing processes"
   
-  kill -TERM $dnsmasq
+  kill -TERM $dnsmasq || /bin/true
   wait $dnsmasq
   rc=$?
   
-  kill -TERM $inotifyd
+  kill -TERM $inotifyd || /bin/true
   wait $inotifyd
 
   rc=$(( $rc || $? ))
@@ -86,16 +86,10 @@ _kill_procs() {
 # Setup a trap to catch SIGTERM and relay it to child processes
 trap _kill_procs SIGTERM
 
-#Wait for dnsmasq
-wait $dnsmasq
-rc=$?
+#Wait for any children to terminate
+wait -n
 
 echo "TERMINATING"
 
-# kill inotifyd
-kill -TERM $inotifyd
-wait $inotifyd
-
-rc=$(( $rc || $? ))
-echo "Terminated with RC: $rc"
-exit $rc
+# kill remaining processes
+_kill_procs
