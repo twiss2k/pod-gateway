@@ -39,3 +39,6 @@ RESOLV_CONF_COPY=/etc/resolv_copy.conf
 # ICMP heartbeats are used to ensure the pod-gateway is connectable from the clients.
 # The following value can be used to to provide more stability in an unreliable network connection.
 CONNECTION_RETRY_COUNT=1
+
+# If you use nftables for iptables you need to set this to yes
+IPTABLES_NFT=no
