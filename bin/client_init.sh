@@ -41,7 +41,7 @@ NAT_ENTRY="$(grep "$(hostname)" /config/nat.conf || true)"
 VXLAN_GATEWAY_IP="${VXLAN_IP_NETWORK}.1"
 
 # Make sure there is correct route for gateway
-# K8S_GW_IP is not set if scipt is called again and route still exist on pod
+# K8S_GW_IP is not set when script is called again and the route should still exist on the pod anyway.
 if [ -n "$K8S_GW_IP" ]; then
     ip route add "$GATEWAY_IP" via "$K8S_GW_IP"
 fi
