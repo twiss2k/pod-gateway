@@ -45,12 +45,13 @@ clear-on-reload
 resolv-file=${RESOLV_CONF_COPY}
 EOF
 
-if [[ ${GATEWAY_ENABLE_DNSSEC} == true ];then
+if [[ ${GATEWAY_ENABLE_DNSSEC} == true ]]; then
 cat << EOF >> /etc/dnsmasq.d/pod-gateway.conf
   # Enable DNSSEC validation and caching
   conf-file=/usr/share/dnsmasq/trust-anchors.conf
   dnssec
 EOF
+fi
 
 for local_cidr in $DNS_LOCAL_CIDRS; do
   cat << EOF >> /etc/dnsmasq.d/pod-gateway.conf
