@@ -37,6 +37,8 @@ if ! ip rule | grep -q "from all lookup main suppress_prefixlength 0"; then
   ip rule add from all lookup main suppress_prefixlength 0 preference 50;
 fi
 
+ls -l /lib/modules
+
 # Enable outbound NAT
 iptables -t nat -A POSTROUTING -j MASQUERADE
 
